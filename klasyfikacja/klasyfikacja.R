@@ -32,7 +32,7 @@ R2 <- ddply(dane3, "miesiac", transform,
             anomalia=anomal(temp), percentyl=klasa(temp), lorenc=klasa_lorenc(temp))
 R2$percentylklasa <- cut(R2$percentyl, breaks=c(0,5,10,20,30,40,60,70,80,90,95,100)/100 ,labels=1:11)
 head(R2)
-R2$percentylklasa <- as.numeric(as.character(R2$percentylklasa))
+#R2$percentylklasa <- as.numeric(as.character(R2$percentylklasa))
 
 ggplot(dane3, aes(y=rok, x=miesiac, fill=temp)) + 
   geom_tile(colour="black",  width=0.95, height=.95) + theme_minimal() +
