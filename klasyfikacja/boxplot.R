@@ -27,6 +27,7 @@ ggplot(dane3, aes(miesiac, temp))+ #geom_boxplot()+
   stat_summary(fun.data = f, geom="boxplot", position=position_dodge(width=5.5))+
   scale_y_continuous(name = "anomalia temperatury", breaks=seq(-5,5,1))+
   geom_hline(yintercept = 0, col='red', size=2)
+ggsave("dywan_kwantylowa.svg")
 
 dane3 <- dplyr::filter(dane3, miesiac!="YEAR")
 
@@ -40,4 +41,4 @@ ggplot(dane3, aes(temp, fill=miesiac))+ geom_density(show.legend = F)+
   scale_x_continuous(limits=c(-10,10))+
   theme(legend.key = NULL)
 
-ggsave("dywan_kwantylowa.svg")
+ggsave("polygon.svg")
