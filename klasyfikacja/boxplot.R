@@ -33,7 +33,7 @@ p1 <- ggplot(dane3, aes(miesiac, temp))+ #geom_boxplot()+
   stat_summary(fun.data = f_perc, geom="errorbar", width = 0.3) + 
   stat_summary(fun.data = f_perc, geom="boxplot", position=position_dodge(width=5.5))+
   scale_y_continuous(name = "anomalia temperatury", breaks=seq(-9,9,1), limits = c(-9,9))+
-  geom_hline(yintercept = 0, col='red', size=2)+ggtitle("Rozstrzał - klasyfikacja kwanthylowa")
+  geom_hline(yintercept = 0, col='red', size=2)+ggtitle("Rozstrzał - klasyfikacja kwantylowa")
 
 p2 <- ggplot(dane3, aes(miesiac, temp))+ #geom_boxplot()+
   stat_summary(fun.data = f_sd, geom="errorbar", width = 0.3) + 
