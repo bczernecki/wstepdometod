@@ -15,19 +15,38 @@ dane3$miesiac <- as.factor(dane3$miesiac)
 dane3$miesiac <- factor(dane3$miesiac, levels = c(month.name,"YEAR"))
 
 
-f <- function(x) {
+f_perc <- function(x) {
   r <- quantile(x, probs = c(0.05, 0.25, 0.5, 0.75, 0.95))
   names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
   r
 }
 
 
-ggplot(dane3, aes(miesiac, temp))+ #geom_boxplot()+
-  stat_summary(fun.data = f, geom="errorbar", width = 0.3) + 
-  stat_summary(fun.data = f, geom="boxplot", position=position_dodge(width=5.5))+
-  scale_y_continuous(name = "anomalia temperatury", breaks=seq(-5,5,1))+
-  geom_hline(yintercept = 0, col='red', size=2)
-ggsave("boxplot.svg")
+f_sd <- function(x) {
+  r <- sd(x)*c(-2.5,-1,0,1,2.5)
+  names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
+  r
+}
+
+
+p1 <- ggplot(dane3, aes(miesiac, temp))+ #geom_boxplot()+
+  stat_summary(fun.data = f_perc, geom="errorbar", width = 0.3) + 
+  stat_summary(fun.data = f_perc, geom="boxplot", position=position_dodge(width=5.5))+
+  scale_y_continuous(name = "anomalia temperatury", breaks=seq(-9,9,1), limits = c(-9,9))+
+  geom_hline(yintercept = 0, col='red', size=2)+ggtitle("Rozstrzał - klasyfikacja kwanthylowa")
+
+p2 <- ggplot(dane3, aes(miesiac, temp))+ #geom_boxplot()+
+  stat_summary(fun.data = f_sd, geom="errorbar", width = 0.3) + 
+  stat_summary(fun.data = f_sd, geom="boxplot", position=position_dodge(width=5.5))+
+  scale_y_continuous(name = "anomalia temperatury", breaks=seq(-9,9,1), limits = c(-9,9))+
+  geom_hline(yintercept = 0, col='red', size=2)+ggtitle("Rozstrzał - klasyfikacja oparta o odch. stand.")
+
+library("ggpubr")
+ggarrange(p1, p2, 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+
+ggsave("boxplot.svg", width = 14, height = 6)
 
 dane3 <- dplyr::filter(dane3, miesiac!="YEAR")
 
