@@ -35,6 +35,9 @@ kolory <-  colorRampPalette(colors = (c("blueviolet", "blue", "lightblue", "yell
 
 ggplot(dane3, aes(temp, fill=miesiac))+ geom_density(show.legend = F)+
   facet_wrap(~miesiac, nrow=3)+
+  geom_abline(intercept = 0, col="white" ,lty=2)+
   scale_fill_manual(name="miesiąc:",  labels = month.abb, values = kolory)+
   scale_x_continuous(limits=c(-10,10))+
   theme(legend.key = NULL)
+
+ggsave("dywan_kwantylowa.svg")

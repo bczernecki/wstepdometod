@@ -4,4 +4,4 @@ Skrypty robocze do wizualizacji i przetwarzania danych
 
 ![rozklad temperatur w PL](polygon.png)
 
-![klasyfikacja miesięcznych anomalii temperatury powietrza](dywan_kwantylowa.png)
+![klasyfikacja miesięcznych anomalii temperatury powietrza](dywan_kwantylowa.svg)
