@@ -16,7 +16,7 @@ dane3$miesiac <- factor(dane3$miesiac, levels = c(month.name,"YEAR"))
 
 
 f <- function(x) {
-  r <- quantile(x, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
+  r <- quantile(x, probs = c(0.05, 0.25, 0.5, 0.75, 0.95))
   names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
   r
 }
@@ -42,3 +42,20 @@ ggplot(dane3, aes(temp, fill=miesiac))+ geom_density(show.legend = F)+
   theme(legend.key = NULL)
 
 ggsave("polygon.svg")
+
+
+# sprawdzmy jeszcze zaleznosci na wartosciach surowych (nie-anomaliach)
+dane4 <- select(dane, -DJF:-SON) %>% gather(., miesiac, temp, -rok) %>% 
+  mutate(miesiac=factor(miesiac, levels=month.name)) %>% filter(miesiac!="YEAR")
+
+srednie <-  dane4 %>% dplyr::group_by(miesiac) %>% dplyr::summarise(srednie=mean(temp))
+srednie
+
+p <- ggplot(dane4, aes(temp, fill=miesiac))+ geom_density(show.legend = F)+
+  facet_wrap(~miesiac, nrow=3,scales = "free_x")+
+  #geom_vline(intercept = 0, col="white" ,lty=2)+
+  theme(legend.key = NULL)
+p+geom_text(data=srednie, aes(x=srednie+2, y=0.3, label=round(srednie,1)))+
+  geom_vline(data=srednie, aes(xintercept = srednie))
+
+ggsave("polygon_surowe.svg")
