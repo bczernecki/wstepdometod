@@ -89,4 +89,4 @@ ggplot(R2, aes(y=rok, x=miesiac, fill=percentylklasa)) +
         title=element_text(hjust=-.07, face="bold", vjust=1, family="Helvetica",size=11),
         text=element_text(family="Helvetica", size=11.5, colour = "gray20"))
 
-
+ggsave("dywan_kwantylowa.svg", width = 9, height = 11)
