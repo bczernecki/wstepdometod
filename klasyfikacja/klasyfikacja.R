@@ -4,6 +4,11 @@ library(plyr)
 library(tidyverse)
 library(RColorBrewer)
 
+# to jest dla danych piotra
+# dane <- read.table("https://meteomodel.pl/klimat/poltemp/poltemp-all.txt", skip = 7,nrows = length(1781:2018), na.strings="-99.00")
+# colnames(dane) <- c("rok", month.name, "YEAR", "DJF","MAM", "JJA", "SON")
+
+# a to jest dla normalnych
 dane <- read.table("klasyfikacja/polska.csv", dec=",",header=T) 
 colnames(dane) <- c("rok", month.name, "DJF","MAM", "JJA", "SON", "YEAR")
 
@@ -47,11 +52,11 @@ wynik$rok <- as.factor(wynik$rok*-1)
 rysuj_dywan <- function(data="lorenc", tytul="Klasyfikacja kwantylowa - POLSKA"){
   ggplot(wynik, aes_string(y="rok", x="miesiac", fill=data)) + 
     geom_tile(colour="black",  width=0.95, height=.95) + theme_minimal() +
-    geom_text(size=3, colour="gray", aes(label=format(round(wynik$anomalia,1),nsmall=1)))+
+    #geom_text(size=3, colour="gray", aes(label=format(round(wynik$anomalia,1),nsmall=1)))+
     scale_fill_manual(name="miesiąc:",  labels = etykiety, values = kolory)+
 #                       guide=guide_colourbar(ticks=T, nbin=11, barheight=1, label=T, barwidth=12))+
     labs(x="", y="", fill="") +
-    scale_y_discrete(labels=2013:1951,expand=c(0,0))+
+    #scale_y_discrete(labels=2013:1951,expand=c(0,0))+
     scale_x_discrete(labels=paste(c(month.abb, "YEAR"), round(colMeans(dane[,c(c(2:13,18))]),1),sep="\n"))+
     geom_vline(xintercept = 12.5, col='black', size=0.3, lty=2)+
     ggtitle(tytul)+

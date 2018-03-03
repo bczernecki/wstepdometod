@@ -5,6 +5,7 @@ library(tidyverse)
 library(RColorBrewer)
 setwd("~/github/wstepdometod/")
 
+
 dane <- read.table("klasyfikacja/polska.csv", dec=",",header=T) 
 colnames(dane) <- c("rok", month.name, "DJF","MAM", "JJA", "SON", "YEAR")
 dane2 <- as.data.frame(round(t(as.matrix(t(dane))-colMeans(dane, na.rm=T)),2))
