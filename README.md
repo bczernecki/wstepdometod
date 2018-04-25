@@ -1,6 +1,26 @@
 # Wstęp do metod badań geograficznych
 
-Skrypty robocze do wizualizacji i przetwarzania danych
+1. Instalacja pakietu
+--------------------
+W celu zainstalowania pakietu najszybciej wykorzystać pakiet `devtools` oraz pakiety na których bazuje `wstepdometod`:
+
+``` r
+# dla swiezej instalacji R:
+install.packages("devtools")
+install.packages("ggplot2")
+install.packages("reshape")
+install.packages("plyr")
+install.packages("dplyr")
+install.packages("tidyverse")
+install.packages("RColorBrewer")
+library(devtools)
+install_github("bczernecki/wstepdometod")
+```
+
+
+2. Skrypty robocze do wizualizacji i przetwarzania danych
+--------------------
+
 
 ![Klasyfikacja kwantylowa temperatur miesięcznych w Polsce - źródło danych meteorologicznych IMGW-PIB](dywan_kwantylowa.svg)
 
