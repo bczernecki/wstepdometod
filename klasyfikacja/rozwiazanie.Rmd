@@ -14,7 +14,7 @@ header-includes:
 
 #Zadanie 1:
 
-Stacja: Warszawa
+Tabela 1: Średnie miesięczne i roczne wartości temperatury powietrza w latach 1966-2017 na stacji meterologicznej Warszawa-Okęcie (dane: IMGW-PIB)
 
 ```{r part1_1, message=FALSE, warning=FALSE, include=FALSE}
 library(readxl)
@@ -45,7 +45,7 @@ Docelowo zamiast wklejać całą tabelę jak poniżej można ją przesłać w je
 Poniższa tabela może być także w formie "obróconej" o 90 stopni (jak w treści polecenia)
 
 
-Tabela 2: Wartości charakterystyczne 
+Tabela 2: Wartości charakterystyczne i ekstremalne w wieloleciu 1966-2017 na stacji Warszawa-Okęcie
 ```{r part2_1, message=FALSE, warning=FALSE, include=FALSE}
 
 srednie <- round(colMeans(dane[,-1]),2)
@@ -66,6 +66,8 @@ kable(data.frame(okres=c(month.abb,"rok"), srednia=srednie, maximum=maxy, rok_wy
 
 # Zadanie 3:
 
+Tabela 3: Wartości anomalii temperatur powietrza w latach 1966-2017 na stacji Warszawa-Okęcie (względem wartości średnich w wieloleciu).
+(Podobnie jak w zad. 1 powyższa tabela może zostać przesłana w formie załącznika zapisanego w jednym z zaproponowanych formatów)
 ```{r zad3_1, include=FALSE}
 anomal <- function(x, rok) {
   ind <- which(rok >= 1951 & rok <= 2020) # deklaracja referencji
@@ -106,7 +108,6 @@ library(knitr)
 options(knitr.table.format = "latex")
 kable(anomalie)
 ```
-Podobnie jak w zadaniu nr 1 powyższa tabela może zostać przesłana w formie załącznika zapisanego w jednym z zaproponowanych formatów.
 
 
 
@@ -114,6 +115,9 @@ Podobnie jak w zadaniu nr 1 powyższa tabela może zostać przesłana w formie z
 
 
 
+
+\newpage
+\blandscape
 
 # Zadanie 4:
 
@@ -126,7 +130,7 @@ etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły",
                   "normalny", "lekko chłodny" , "chłodny", "bardzo chłodny", "anomalnie chłodny", "ekstremalnie chłodny"))
 ```
 
-Klasyfikacja termiczna miesięcy i lat według Lorenc:
+Tabela 4: Wartości progowe klasyfikacji termicznej miesięcy i lat w Warszawie według H. Lorenc w wieloleciu 1966-2017. Wartości klas wyznaczono w oparciu o uzyskane wartości odchylenia standardowego (temp. średnia + [-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5 odch. stand.]).
 ```{r zad4_2, echo=FALSE, message=FALSE, warning=FALSE}
 kable(cbind.data.frame(klasa=etykiety,
                  JAN1=przedzialy(dane$January)[1:11], JAN2=(przedzialy(dane$January))[c(2:11,1)]-0.01,
@@ -147,7 +151,7 @@ kable(cbind.data.frame(klasa=etykiety,
 
 # Zadanie 5:
 
-Klasyfikacja termiczna miesięcy i lat wg wyznaczonych wartości percentyli:
+Tabela 5: Wartości progowe kwantylowej klasyfikacji termicznej miesięcy i lat w Warszawie w wieloleciu 1966-2017. Wartości klas wyznaczono w oparciu o uzyskane wartości percentyli (5,10,20,30,40,60,70,80,90,95).
 
 ```{r zad5_1, include=FALSE}
 przedzialy <- function(x){
@@ -175,11 +179,13 @@ kable(cbind.data.frame(klasa=etykiety,
                  ROK1=przedzialy(dane$year)[1:11],ROK2=(przedzialy(dane$year))[c(2:11,1)]-0.01
                  ), booktabs=T) %>% kable_styling(latex_options = c ("striped", "scale_down"))
 ```
-
+\elandscape
 
 # Zadanie 6:
 
-Wynik klasyfikacji miesięcy i lat wg klasyfikacji kwantylowej
+Tabela 6: Wynik klasyfikacji miesięcy i lat wg klasyfikacji kwantylowej.
+
+Wynik tego zadania również można załączyć w postaci pliku w jednym z wymienionych wcześniej formatów!
 
 ```{r zad6_1, include=FALSE}
 klasy <- wynik %>% dplyr::select(rok,miesiac,kwantyl) %>% spread(miesiac, kwantyl)
@@ -187,7 +193,38 @@ colnames(klasy) <- c("--",month.abb,"year")
 ```
 
 ```{r zad6_2, echo=FALSE}
-kable(klasy, booktabs=F) %>% kable_styling(latex_options = c ( "scale_down"), font_size = 7)
+kable(klasy, booktabs=F) %>% kable_styling(latex_options = c ( "scale_down"), font_size = 5)
 ```
 
-Wynik tego zadania również można załączyć w postaci pliku w jednym z wymienionych wcześniej formatów!
+# Zadanie 7:
+
+Ryc. 1: Wykres zmienności warunków termicznych w postaci tzw. mapy ciepła na podstawie stworzonej kwantylowej klasyfikacji termicznej (Warszawa, 1966-2017):
+
+```{r zad7_1, include=FALSE}
+kolory <-  colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11)
+etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły", "ciepły", "lekko ciepły",
+                  "normalny", "lekko chłodny" , "chłodny", "bardzo chłodny", "anomalnie chłodny", "ekstremalnie chłodny"))
+
+library(dplyr)
+library(tidyr)
+macierz <- apply(klasy, 2, as.numeric)
+```
+
+```{r zad7_2, echo=FALSE, fig.height=9, fig.width=7.5}
+# marginesy: # zakresy okna dla calej rysowanej figury:
+par(mar=c(0.5,3,2,1), fig=c(0.05, 0.70, 0.06, 0.95))
+image(x = 1:13, y=1:nrow(macierz), t(macierz[nrow(macierz):1,-1]), xlab = "", xaxt='n', yaxt='n', col = kolory, ylab='')
+axis(2, labels = macierz[seq(from=1, to=nrow(macierz), by=3),1], at=(nrow(macierz):1)[seq(from=1, to=nrow(macierz), by=3)], cex.axis=0.95)
+axis(3, labels = c("I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","ROK"), at=1:13, tick = F, padj = 1, cex.axis=0.8)
+abline(v=1.5:13, lwd=0.8)
+abline(v=12.5:13.5, lwd=2.5, lty=2, col="black") # oddzielamy serie roczna
+abline(h=1.5:nrow(macierz), lwd=0.5)
+box(lwd=2)
+
+par(mar=c(0.5,3,2,1), fig=c(0.65, 0.95, 0.06, 0.45), new=T)
+image(t(matrix(1:11)), col=kolory, xaxt='n', yaxt='n', main="Legenda:" , cex.main=1)
+
+text(x = rep(0,11), y=0:10/10, labels=etykiety, cex=0.7)
+box()
+abline(h=0.5:10/10, lwd=0.5)
+```
