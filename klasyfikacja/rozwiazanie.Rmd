@@ -1,0 +1,193 @@
+---
+title: "Przykładowe rozwiązanie projektu końcowego"
+author: "Bartosz Czernecki"
+date: "26/04/2018"
+output:
+  pdf_document: 
+  keep_tex: true
+header-includes:
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+  
+---
+
+#Zadanie 1:
+
+Stacja: Warszawa
+
+```{r part1_1, message=FALSE, warning=FALSE, include=FALSE}
+library(readxl)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(plyr)
+dane <- read_excel("~/github/wstepdometod/dane/daneimgw.xls")
+dane <- select(dane, rok, miesiac, WARSZAWA)
+dane <- spread(dane, miesiac, WARSZAWA)
+dane$year <- rowMeans(dane[,-1])
+dane <- round(dane,2)
+dane <- as.data.frame(dane)
+```
+
+```{r part1_2, echo=FALSE}
+library(knitr)
+library(kableExtra)
+dane
+```
+
+
+Docelowo zamiast wklejać całą tabelę jak poniżej można ją przesłać w jednym ze wskazanych formatów danych w formie załącznika do wykonanego projektu
+
+
+# Zadanie 2:
+
+Poniższa tabela może być także w formie "obróconej" o 90 stopni (jak w treści polecenia)
+
+
+Tabela 2: Wartości charakterystyczne 
+```{r part2_1, message=FALSE, warning=FALSE, include=FALSE}
+
+srednie <- round(colMeans(dane[,-1]),2)
+maxy <- round(apply(dane[,-1], 2, max),2)
+miny <- round(apply(dane[,-1], 2, min),2)
+
+indmin <- round(apply(dane[,-1], 2, which.min),2)
+indmax <- round(apply(dane[,-1], 2, which.max),2)
+```
+
+```{r part2_2, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(kableExtra)
+kable(data.frame(okres=c(month.abb,"rok"), srednia=srednie, maximum=maxy, rok_wyst_max=dane$rok[indmax], minimun=miny, rok_wyst_min=dane$rok[indmin], row.names = NULL), format='latex', booktabs=F) 
+```
+
+
+
+# Zadanie 3:
+
+```{r zad3_1, include=FALSE}
+anomal <- function(x, rok) {
+  ind <- which(rok >= 1951 & rok <= 2020) # deklaracja referencji
+  round(x-mean(x[ind], na.rm=T),2)
+}
+
+klasa_kwantyl <- function(x, rok){
+  ind <- which(rok >= 1951 & rok <= 2020) # deklaracja referencji
+  przedzialy <- quantile(x[ind], c(0,5,10,20,30,40,60,70,80,90,95,100)/100)
+  przedzialy[c(1,11)] <- c(-99,99)
+  cut(x, breaks=przedzialy, labels=1:11)
+} 
+
+klasa_lorenc <- function(x, rok){
+  ind <- which(rok >= 1951 & rok <= 2020) # deklaracja referencji
+  przedzialy <- (sd(x[ind], na.rm=T)*c(-99,-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5,99))+mean(x[ind], na.rm=T)
+  cut(x, breaks = przedzialy, labels = 1:11)
+}
+
+colnames(dane) <- c("rok",month.name,"year")
+dane$year <- round(dane$year,2)
+dane55 <- dane %>% gather(., miesiac, temp, -rok) 
+dane55$miesiac <- factor(dane55$miesiac, levels = c(month.name,"year"))
+
+wynik <- ddply(dane55, "miesiac", transform, 
+            anomalia=anomal(x=temp, rok=rok),  
+            lorenc=klasa_lorenc(x=temp, rok=rok),
+            kwantyl=klasa_kwantyl(x=temp, rok=rok))
+
+anomalie <- wynik %>% dplyr::select(rok,miesiac,anomalia) %>% spread(miesiac, anomalia)
+```
+
+
+```{r zad3_2, echo=FALSE, message=FALSE, warning=FALSE}
+colnames(anomalie) <- c("--", month.abb,"year")
+library(kableExtra)
+library(knitr)
+options(knitr.table.format = "latex")
+kable(anomalie)
+```
+Podobnie jak w zadaniu nr 1 powyższa tabela może zostać przesłana w formie załącznika zapisanego w jednym z zaproponowanych formatów.
+
+
+
+
+
+
+
+
+# Zadanie 4:
+
+```{r zad4_1, include=FALSE}
+przedzialy <- function(x){
+  round((sd(x, na.rm=T)*c(NA,-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5,NA))+mean(x, na.rm=T),2)
+}
+
+etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły", "ciepły", "lekko ciepły",
+                  "normalny", "lekko chłodny" , "chłodny", "bardzo chłodny", "anomalnie chłodny", "ekstremalnie chłodny"))
+```
+
+Klasyfikacja termiczna miesięcy i lat według Lorenc:
+```{r zad4_2, echo=FALSE, message=FALSE, warning=FALSE}
+kable(cbind.data.frame(klasa=etykiety,
+                 JAN1=przedzialy(dane$January)[1:11], JAN2=(przedzialy(dane$January))[c(2:11,1)]-0.01,
+                 FEB1=przedzialy(dane$February)[1:11], FEB2=(przedzialy(dane$February))[c(2:11,1)]-0.01,
+                 MAR1=przedzialy(dane$March)[1:11], MAR2=(przedzialy(dane$March))[c(2:11,1)]-0.01,
+                 APR1=przedzialy(dane$April)[1:11], APR2=(przedzialy(dane$April))[c(2:11,1)]-0.01,
+                 MAY1=przedzialy(dane$May)[1:11], MAY2=(przedzialy(dane$May))[c(2:11,1)]-0.01,
+                 JUN1=przedzialy(dane$June)[1:11],JUN2=(przedzialy(dane$June))[c(2:11,1)]-0.01,
+                 JUL1=przedzialy(dane$July)[1:11],JUL2=(przedzialy(dane$July))[c(2:11,1)]-0.01,
+                 AUG1=przedzialy(dane$August)[1:11],AUG2=(przedzialy(dane$August))[c(2:11,1)]-0.01,
+                 SEP1=przedzialy(dane$September)[1:11],SEP2=(przedzialy(dane$September))[c(2:11,1)]-0.01,
+                 OCT1=przedzialy(dane$October)[1:11],OCT2=(przedzialy(dane$October))[c(2:11,1)]-0.01,
+                 NOV1=przedzialy(dane$November)[1:11],NOV2=(przedzialy(dane$November))[c(2:11,1)]-0.01,
+                 DEC1=przedzialy(dane$December)[1:11],DEC2=(przedzialy(dane$December))[c(2:11,1)]-0.01,
+                 ROK1=przedzialy(dane$year)[1:11],ROK2=(przedzialy(dane$year))[c(2:11,1)]-0.01
+                 ), booktabs=T) %>% kable_styling(latex_options = c ("striped", "scale_down"))
+```
+
+# Zadanie 5:
+
+Klasyfikacja termiczna miesięcy i lat wg wyznaczonych wartości percentyli:
+
+```{r zad5_1, include=FALSE}
+przedzialy <- function(x){
+  przedzialy <- quantile(x, c(0,5,10,20,30,40,60,70,80,90,95,100)/100, na.rm = T)
+  przedzialy[c(1,12)] <- c(NA,NA)
+  round(as.numeric(przedzialy),2)
+} 
+```
+
+
+```{r zad5_2, echo=FALSE, message=FALSE, warning=FALSE}
+kable(cbind.data.frame(klasa=etykiety,
+                 JAN1=przedzialy(dane$January)[1:11], JAN2=(przedzialy(dane$January))[c(2:11,1)]-0.01,
+                 FEB1=przedzialy(dane$February)[1:11], FEB2=(przedzialy(dane$February))[c(2:11,1)]-0.01,
+                 MAR1=przedzialy(dane$March)[1:11], MAR2=(przedzialy(dane$March))[c(2:11,1)]-0.01,
+                 APR1=przedzialy(dane$April)[1:11], APR2=(przedzialy(dane$April))[c(2:11,1)]-0.01,
+                 MAY1=przedzialy(dane$May)[1:11], MAY2=(przedzialy(dane$May))[c(2:11,1)]-0.01,
+                 JUN1=przedzialy(dane$June)[1:11],JUN2=(przedzialy(dane$June))[c(2:11,1)]-0.01,
+                 JUL1=przedzialy(dane$July)[1:11],JUL2=(przedzialy(dane$July))[c(2:11,1)]-0.01,
+                 AUG1=przedzialy(dane$August)[1:11],AUG2=(przedzialy(dane$August))[c(2:11,1)]-0.01,
+                 SEP1=przedzialy(dane$September)[1:11],SEP2=(przedzialy(dane$September))[c(2:11,1)]-0.01,
+                 OCT1=przedzialy(dane$October)[1:11],OCT2=(przedzialy(dane$October))[c(2:11,1)]-0.01,
+                 NOV1=przedzialy(dane$November)[1:11],NOV2=(przedzialy(dane$November))[c(2:11,1)]-0.01,
+                 DEC1=przedzialy(dane$December)[1:11],DEC2=(przedzialy(dane$December))[c(2:11,1)]-0.01,
+                 ROK1=przedzialy(dane$year)[1:11],ROK2=(przedzialy(dane$year))[c(2:11,1)]-0.01
+                 ), booktabs=T) %>% kable_styling(latex_options = c ("striped", "scale_down"))
+```
+
+
+# Zadanie 6:
+
+Wynik klasyfikacji miesięcy i lat wg klasyfikacji kwantylowej
+
+```{r zad6_1, include=FALSE}
+klasy <- wynik %>% dplyr::select(rok,miesiac,kwantyl) %>% spread(miesiac, kwantyl)
+colnames(klasy) <- c("--",month.abb,"year")
+```
+
+```{r zad6_2, echo=FALSE}
+kable(klasy, booktabs=F) %>% kable_styling(latex_options = c ( "scale_down"), font_size = 7)
+```
+
+Wynik tego zadania również można załączyć w postaci pliku w jednym z wymienionych wcześniej formatów!
