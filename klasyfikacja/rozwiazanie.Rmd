@@ -78,13 +78,13 @@ klasa_kwantyl <- function(x, rok){
   ind <- which(rok >= 1951 & rok <= 2020) # deklaracja referencji
   przedzialy <- quantile(x[ind], c(0,5,10,20,30,40,60,70,80,90,95,100)/100)
   przedzialy[c(1,11)] <- c(-99,99)
-  cut(x, breaks=przedzialy, labels=1:11)
+  cut(x, breaks=przedzialy, labels=11:1)
 } 
 
 klasa_lorenc <- function(x, rok){
   ind <- which(rok >= 1951 & rok <= 2020) # deklaracja referencji
   przedzialy <- (sd(x[ind], na.rm=T)*c(-99,-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5,99))+mean(x[ind], na.rm=T)
-  cut(x, breaks = przedzialy, labels = 1:11)
+  cut(x, breaks = przedzialy, labels = 11:1)
 }
 
 colnames(dane) <- c("rok",month.name,"year")
