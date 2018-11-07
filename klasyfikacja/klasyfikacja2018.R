@@ -1,6 +1,6 @@
 library(dplyr)
 library(tidyr)
-library(xlsx)
+library(readxl)
 
 kolory <-  colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11)
 etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły", "ciepły", "lekko ciepły",
