@@ -1,7 +1,7 @@
 ---
 title: "Przykładowe rozwiązanie projektu końcowego"
 author: "Bartosz Czernecki"
-date: "26/04/2018"
+date: "10/12/2018"
 output:
   pdf_document: 
   keep_tex: true
@@ -23,8 +23,8 @@ library(dplyr)
 library(tidyr)
 library(plyr)
 dane <- read_excel("~/github/wstepdometod/dane/daneimgw.xls")
-dane <- select(dane, rok, miesiac, WARSZAWA)
-dane <- spread(dane, miesiac, WARSZAWA)
+dane <- select(dane, rok, miesiac, `ELBLĄG-MILEJEWO`)
+dane <- spread(dane, miesiac, `ELBLĄG-MILEJEWO`)
 dane$year <- rowMeans(dane[,-1])
 dane <- round(dane,2)
 dane <- as.data.frame(dane)
@@ -126,8 +126,8 @@ przedzialy <- function(x){
   round((sd(x, na.rm=T)*c(NA,-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5,NA))+mean(x, na.rm=T),2)
 }
 
-etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły", "ciepły", "lekko ciepły",
-                  "normalny", "lekko chłodny" , "chłodny", "bardzo chłodny", "anomalnie chłodny", "ekstremalnie chłodny"))
+etykiety <- rev(c("ekstremalnie cieply", "anomalnie cieply", "bardzo cieply", "cieply", "lekko cieply",
+                  "normalny", "lekko chlodny" , "chlodny", "bardzo chlodny", "anomalnie chlodny", "ekstremalnie chlodny"))
 ```
 
 Tabela 4: Wartości progowe klasyfikacji termicznej miesięcy i lat w Warszawie według H. Lorenc w wieloleciu 1966-2017. Wartości klas wyznaczono w oparciu o uzyskane wartości odchylenia standardowego (temp. średnia + [-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5 odch. stand.]).
@@ -202,8 +202,8 @@ Ryc. 1: Wykres zmienności warunków termicznych w postaci tzw. mapy ciepła na 
 
 ```{r zad7_1, include=FALSE}
 kolory <-  colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11)
-etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły", "ciepły", "lekko ciepły",
-                  "normalny", "lekko chłodny" , "chłodny", "bardzo chłodny", "anomalnie chłodny", "ekstremalnie chłodny"))
+etykiety <- rev(c("ekstremalnie cieply", "anomalnie cieply", "bardzo cieply", "cieply", "lekko cieply",
+                  "normalny", "lekko chlodny" , "chlodny", "bardzo chlodny", "anomalnie chlodny", "ekstremalnie chlodny"))
 
 library(dplyr)
 library(tidyr)
@@ -227,4 +227,69 @@ image(t(matrix(1:11)), col=kolory, xaxt='n', yaxt='n', main="Legenda:" , cex.mai
 text(x = rep(0,11), y=0:10/10, labels=etykiety, cex=0.7)
 box()
 abline(h=0.5:10/10, lwd=0.5)
+```
+
+
+
+
+
+
+# Zadanie 8:
+
+
+Ryc. 8.1: Klasyfikacja Lorenc
+
+```{r zad8_1, echo=FALSE, fig.height=9, fig.width=7.5}
+
+par(mfrow=c(2,1), mar=c(2,2,1,1))
+
+miesiace = c(1,4,7,10)
+kolory <-  paste0(colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11),"80")
+
+for (mth in miesiace){
+plot(dane$rok, dane[,mth+1], type='l', xlab='rok', ylab='temperatura', main = paste0('Klasyfikacja Lorenc - ', month.name[mth]), ylim=range(dane[,mth+1])+c(-0.5,+0.5))
+srednia <- mean(dane[,mth+1])
+odch <- sd(dane[,mth+1])
+polygon(x = c(1900,1900,2100,2100) , y = c(-99,srednia-2.5*odch, srednia-2.5*odch, -99 ), col=kolory[1])
+polygon(x = c(1900,1900,2100,2100) , y = c(srednia+2.5*odch, 99, 99, srednia+2.5*odch), col=kolory[11])
+
+odchylenia <- c(-2.5,-2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 2.5)
+
+for (i in 1:9) polygon(x = c(1900,1900,2100,2100), y = c(srednia+odchylenia[i]*odch, srednia+odchylenia[i+1]*odch, srednia+odchylenia[i+1]*odch, srednia+odchylenia[i]*odch), col=kolory[i+1] )
+lines(dane$rok, dane[,mth+1], lwd=3)
+
+} # koniec petli dla miesiecy
+
+```
+
+
+
+
+
+
+Ryc. 8.2: Klasyfikacja kwantylowa
+
+```{r zad8_2, echo=FALSE, fig.height=9, fig.width=7.5}
+
+par(mfrow=c(2,2), mar=c(2,2,1,1))
+
+miesiace = c(1,4,7,10)
+kolory <-  paste0(colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11),"80")
+
+for (mth in miesiace){
+plot(dane$rok, dane[,mth+1], type='l', xlab='rok', ylab='temperatura', main = paste0('Klasyfikacja kwantylowa - ', month.name[mth]), ylim=range(dane[,mth+1])+c(-0.5,+0.5))
+srednia <- mean(dane[,mth+1])
+
+quantile(dane[,mth+1], probs = c())
+kwantyle <- quantile(dane[,mth+1], c(5,10,20,30,40,60,70,80,90,95)/100, na.rm = T)
+
+polygon(x = c(1900,1900,2100,2100) , y = c(-99,kwantyle[1], kwantyle[1], -99 ), col=kolory[1])
+polygon(x = c(1900,1900,2100,2100) , y = c(kwantyle[10], 99, 99, kwantyle[10]), col=kolory[11])
+
+
+for (i in 1:9) polygon(x = c(1900,1900,2100,2100), y = c(kwantyle[i], kwantyle[i+1], kwantyle[i+1], kwantyle[i]), col=kolory[i+1] )
+lines(dane$rok, dane[,mth+1], lwd=3)
+
+} # koniec petli dla miesiecy
+
 ```
