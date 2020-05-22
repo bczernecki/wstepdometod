@@ -19,14 +19,21 @@ anomal <- function(x, rok) {
 }
 
 klasa_kwantyl <- function(x, rok){
-  ind <- which(rok >= 1951 & rok <= 2010) # deklaracja referencji
-  przedzialy <- quantile(x[ind], c(0,5,10,20,30,40,60,70,80,90,95,100)/100)
+  ind <- which(rok >= 1971 & rok <= 2000) # deklaracja referencji
+  przedzialy <- quantile(x[ind], c(0,5,10,20,30,40,60,70,80,90,95,100)/100, na.rm=T)
   przedzialy[c(1,11)] <- c(-99,99)
-  cut(x, breaks=przedzialy, labels=1:11)
+  
+  # dodanie poprawki jesli gdzies 2 kwantyle beda takie same
+  if(length(which(table(przedzialy)>1)>0)) {
+    przedzialy[which(przedzialy == as.numeric(names(which(table(przedzialy)>1)>0)))][1] = 
+      przedzialy[which(przedzialy == as.numeric(names(which(table(przedzialy)>1)>0)))][1]-0.01
+  }
+  
+  cut(x, breaks=przedzialy, labels=11:1)
 } 
 
 klasa_lorenc <- function(x, rok){
-  ind <- which(rok >= 1951 & rok <= 2010) # deklaracja referencji
+  ind <- which(rok >= 1971 & rok <= 2000) # deklaracja referencji
   przedzialy <- (sd(x[ind], na.rm=T)*c(-99,-2.5,-2.0,-1.5,-1.0,-0.5, 0.5, 1.0, 1.5, 2.0, 2.5,99))+mean(x[ind], na.rm=T)
   cut(x, breaks = przedzialy, labels = 1:11)
 }
@@ -41,8 +48,19 @@ wynik <- ddply(dane55, "miesiac", transform,
             kwantyl=klasa_kwantyl(x=temp, rok=rok))
 
 
-
-kolory <-  colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11)
+kolory2 = c("#63191c", 
+            "#cf342c",
+            "#e26334",
+            "#f0aa3f",
+            "#ebe637",
+            "#80ba69",
+            "#16b6d1",
+            "#3178b0",
+            "#3a5395",
+            "#384389",
+            "#352b76")
+kolory = rev(kolory2)
+#kolory <-  colorRampPalette(colors = rev(c("red4","red","orange","white","lightblue", "blue","blueviolet")))(11)
 etykiety <- rev(c("ekstremalnie ciepły", "anomalnie ciepły", "bardzo ciepły", "ciepły", "lekko ciepły",
             "normalny", "lekko chłodny" , "chłodny", "bardzo chłodny", "anomalnie chłodny", "ekstremalnie chłodny"))
 #etykiety <- 1:11
